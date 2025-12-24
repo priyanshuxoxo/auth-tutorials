@@ -51,6 +51,7 @@ function LoginPage() {
               Forgot Password
             </Link>
           </div>
+
           {error && <p className="font-semibold text-red-500 mb-2 ">{error}</p>}
           <motion.button
             whileHover={{ scale: 1.02 }}

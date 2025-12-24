@@ -23,7 +23,7 @@ export const useAuthStore = create((set) => ({
       });
       set({
         user: response.data.user,
-        isAuthenticated: true,
+        isAuthenticated: false,
         isLoading: false,
       });
       toast.success("Signup Successful!");
@@ -42,7 +42,7 @@ export const useAuthStore = create((set) => ({
       const response = await axios.post(`${API_URL}/verify-email`, { code });
       set({
         user: response.data.user,
-        isAuthenticated: true,
+        isAuthenticated: false,
         isLoading: false,
       });
     } catch (error) {

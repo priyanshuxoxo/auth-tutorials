@@ -22,17 +22,19 @@ function VerifyEmail() {
     }
   };
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
+  const submitVerification = async () => {
     const verificationCode = code.join("");
     try {
       await verifyEmail(verificationCode);
-      navigate("login");
-
       toast.success("Email verified Successfully");
+      navigate("/login", { replace: true });
     } catch (error) {
       console.log(error);
     }
+  };
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    submitVerification();
   };
   const handleKeyDown = (index, e) => {
     if (e.key === "Backspace" && !code[index] && index > 0) {
@@ -55,7 +57,7 @@ function VerifyEmail() {
   //auto submit when all filed are filled
   useEffect(() => {
     if (code.every((digit) => digit !== "") && !isLoading) {
-      handleSubmit(new Event("submit"));
+      submitVerification();
     }
   }, [code]);
 

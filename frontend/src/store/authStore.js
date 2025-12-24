@@ -83,6 +83,7 @@ export const useAuthStore = create((set) => ({
       set({
         user: response.data.user,
         isAuthenticated: true,
+        error: null,
         isLoading: false,
       });
       toast.success("Login Successful!");
@@ -102,6 +103,7 @@ export const useAuthStore = create((set) => ({
       set({
         user: null,
         isAuthenticated: false,
+        error: null,
         isLoading: false,
       });
       toast.success("Logout Successful!");

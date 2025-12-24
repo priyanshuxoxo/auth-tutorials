@@ -1,14 +1,18 @@
 import { create } from "zustand";
 import axios from "axios";
 import toast from "react-hot-toast";
-const API_URL = "http://localhost:3000/api/auth";
+
+const API_URL = `${import.meta.env.VITE_API_URL}/api/auth`;
+
 axios.defaults.withCredentials = true;
+
 export const useAuthStore = create((set) => ({
   user: null,
   isAuthenticated: false,
   isLoading: false,
   isCheckingAuth: true,
   message: null,
+
   signup: async (email, password, name) => {
     set({ isLoading: true });
     try {
@@ -25,18 +29,17 @@ export const useAuthStore = create((set) => ({
       toast.success("Signup Successful!");
     } catch (error) {
       set({
-        error: error.response.data.message || "Signup failed",
+        error: error.response?.data?.message || "Signup failed",
         isLoading: false,
       });
       throw error;
     }
   },
+
   verifyEmail: async (code) => {
     set({ isLoading: true });
     try {
-      const response = await axios.post(`${API_URL}/verify-email`, {
-        code,
-      });
+      const response = await axios.post(`${API_URL}/verify-email`, { code });
       set({
         user: response.data.user,
         isAuthenticated: true,
@@ -44,12 +47,13 @@ export const useAuthStore = create((set) => ({
       });
     } catch (error) {
       set({
-        error: error.response.data.message || "Email verification failed",
+        error: error.response?.data?.message || "Email verification failed",
         isLoading: false,
       });
       throw error;
     }
   },
+
   checkAuth: async () => {
     set({ isCheckingAuth: true, error: null });
     try {
@@ -60,7 +64,7 @@ export const useAuthStore = create((set) => ({
         isCheckingAuth: false,
         error: null,
       });
-    } catch (error) {
+    } catch {
       set({
         error: null,
         isCheckingAuth: false,
@@ -68,6 +72,7 @@ export const useAuthStore = create((set) => ({
       });
     }
   },
+
   login: async (email, password) => {
     set({ isLoading: true });
     try {
@@ -80,19 +85,20 @@ export const useAuthStore = create((set) => ({
         isAuthenticated: true,
         isLoading: false,
       });
-      toast.success("Login Succesfull!");
+      toast.success("Login Successful!");
     } catch (error) {
       set({
-        error: error.response.data.message || "Login failed",
+        error: error.response?.data?.message || "Login failed",
         isLoading: false,
       });
       throw error;
     }
   },
+
   logout: async () => {
     set({ isLoading: true });
     try {
-      const response = await axios.post(`${API_URL}/logout`);
+      await axios.post(`${API_URL}/logout`);
       set({
         user: null,
         isAuthenticated: false,
@@ -101,12 +107,13 @@ export const useAuthStore = create((set) => ({
       toast.success("Logout Successful!");
     } catch (error) {
       set({
-        error: error.response.data.message || "Logout failed",
+        error: error.response?.data?.message || "Logout failed",
         isLoading: false,
       });
       throw error;
     }
   },
+
   forgotPassword: async (email) => {
     set({ isLoading: true, error: null });
     try {
@@ -116,12 +123,13 @@ export const useAuthStore = create((set) => ({
       set({ isLoading: false, message: response.data.message });
     } catch (error) {
       set({
-        error: error.response.data.message || "Forgot Password failed",
+        error: error.response?.data?.message || "Forgot Password failed",
         isLoading: false,
       });
       throw error;
     }
   },
+
   resetPassword: async (token, newPassword) => {
     set({ isLoading: true, error: null });
     try {
@@ -131,7 +139,7 @@ export const useAuthStore = create((set) => ({
       set({ isLoading: false, message: response.data.message });
     } catch (error) {
       set({
-        error: error.response.data.message || "Reset Password failed",
+        error: error.response?.data?.message || "Reset Password failed",
         isLoading: false,
       });
       throw error;

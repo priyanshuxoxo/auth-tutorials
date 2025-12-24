@@ -122,10 +122,19 @@ async function login(req, res, next) {
     res.status(500).json({ success: false, message: "Internal Server Error" });
   }
 }
-async function logout(req, res, next) {
-  res.clearCookie("token");
-  res.status(200).json({ success: true, message: "Logged out successfully" });
+async function logout(req, res) {
+  res.clearCookie("token", {
+    httpOnly: true,
+    secure: process.env.NODE_ENV === "production",
+    sameSite: process.env.NODE_ENV === "production" ? "none" : "lax",
+  });
+
+  res.status(200).json({
+    success: true,
+    message: "Logged out successfully",
+  });
 }
+
 async function forgotPassword(req, res) {
   const { email } = req.body;
   try {
@@ -145,7 +154,7 @@ async function forgotPassword(req, res) {
     //send email
     await sendPasswordResetEmail(
       user.email,
-      `${process.env.CLIENT_URL}/reset-password/${resetToken}`
+      `${process.env.FRONTEND_URL}/reset-password/${resetToken}`
     );
     res
       .status(200)

@@ -13,12 +13,22 @@ dotenv.config();
 const app = express();
 const PORT = process.env.PORT || 5000;
 
-// const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.resolve();
-
+const allowedOrigins = [
+  "http://localhost:5173",
+  "https://auth-tutorials.onrender.com",
+];
 app.use(
   cors({
-    origin: process.env.FRONTEND_URL,
+    origin: function (origin, callback) {
+      if (!origin) return callback(null, true);
+
+      if (allowedOrigins.includes(origin)) {
+        callback(null, true);
+      } else {
+        callback(new Error("Not allowed by CORS"));
+      }
+    },
     credentials: true,
   })
 );

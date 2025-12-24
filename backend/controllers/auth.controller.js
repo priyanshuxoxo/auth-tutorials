@@ -10,41 +10,55 @@ import {
   sendResetSuccessEmail,
 } from "../mailtrap/email.js";
 
-async function signup(req, res) {
-  console.log("➡️ Signup API hit");
+export const signup = async (req, res) => {
+  const { email, password, name } = req.body;
 
   try {
-    console.log("📦 Body:", req.body);
+    if (!email || !password || !name) {
+      throw new Error("All fields are required");
+    }
 
-    const { email, password, name } = req.body;
-
-    console.log("🔍 Checking user...");
     const userAlreadyExists = await User.findOne({ email });
-    console.log("✅ User check done");
+    console.log("userAlreadyExists", userAlreadyExists);
+
+    if (userAlreadyExists) {
+      return res
+        .status(400)
+        .json({ success: false, message: "User already exists" });
+    }
 
     const hashedPassword = await bcryptjs.hash(password, 10);
-    console.log("🔐 Password hashed");
+    const verificationToken = Math.floor(
+      100000 + Math.random() * 900000
+    ).toString();
 
-    const user = new User({ email, password: hashedPassword, name });
+    const user = new User({
+      email,
+      password: hashedPassword,
+      name,
+      verificationToken,
+      verificationTokenExpiresAt: Date.now() + 24 * 60 * 60 * 1000, // 24 hours
+    });
+
     await user.save();
-    console.log("💾 User saved");
 
-    console.log("🍪 Generating token...");
+    // jwt
     generateTokenAndSetCookie(res, user._id);
-    console.log("✅ Token generated");
 
-    console.log("📨 Sending email...");
-    sendVerificationEmail(user.email, "123456")
-      .then(() => console.log("📧 Email sent"))
-      .catch((err) => console.error("❌ Email error", err));
+    await sendVerificationEmail(user.email, verificationToken);
 
-    console.log("🚀 Sending response...");
-    return res.status(201).json({ success: true });
-  } catch (err) {
-    console.error("🔥 Signup error:", err);
-    return res.status(500).json({ success: false });
+    res.status(201).json({
+      success: true,
+      message: "User created successfully",
+      user: {
+        ...user._doc,
+        password: undefined,
+      },
+    });
+  } catch (error) {
+    res.status(400).json({ success: false, message: error.message });
   }
-}
+};
 
 async function verifyEmail(req, res) {
   const { code } = req.body;
